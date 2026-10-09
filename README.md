@@ -291,5 +291,8 @@ http://192.168.0.10:5000
 Este repositório é uma prova de conceito educacional. Para uma aplicação de campo, a solução deve evoluir para sensores industriais adequados ao ambiente, fontes protegidas, isolamento elétrico, painel certificado, proteção contra surtos, comunicação robusta, redundância, testes de falha e adequação às normas aplicáveis.
 
 ---
+<p align="center">
+  <img src="assets/imagem projeto.png" alt="Ideia inicial do projeto" width="100%" />
+</p>
 
 Desenvolvido como projeto técnico de automação, sistemas embarcados e supervisão web.
