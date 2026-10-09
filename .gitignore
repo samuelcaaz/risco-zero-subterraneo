@@ -1,0 +1,19 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Credenciais e configuracoes locais
+.env
+.env.*
+!.env.example
+data/settings.json
+data/telegram_token.txt
+data/*.tmp
+
+# Editor e sistema
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relatório Operacional | Risco Zero Subterrâneo</title>
+  <style>
+    :root { color-scheme: light; --ink: #13202b; --muted: #64717c; --line: #d6dde3; --blue: #087ec2; --green: #16834a; --red: #c53030; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #e9edf0; color: var(--ink); font: 13px "Segoe UI", Arial, sans-serif; }
+    .toolbar { position: sticky; top: 0; z-index: 2; display: flex; justify-content: flex-end; gap: 8px; padding: 10px max(16px, calc((100vw - 1040px) / 2)); background: #101820; }
+    .toolbar button { min-height: 38px; padding: 0 16px; border: 1px solid #278bc5; border-radius: 4px; background: #087ec2; color: white; font-weight: 700; cursor: pointer; }
+    .toolbar button:last-child { background: transparent; color: #d9e5ec; border-color: #51616e; }
+    .sheet { width: min(1040px, calc(100% - 24px)); margin: 18px auto; padding: 34px 38px; background: white; box-shadow: 0 8px 30px rgba(0, 0, 0, .12); }
+    header { display: flex; align-items: flex-start; justify-content: space-between; gap: 28px; padding-bottom: 22px; border-bottom: 3px solid var(--blue); }
+    header img { width: 220px; height: auto; }
+    header div { text-align: right; }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 25px; text-transform: uppercase; }
+    header p { margin-top: 6px; color: var(--muted); }
+    h2 { margin: 26px 0 10px; font-size: 16px; text-transform: uppercase; }
+    .summary { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); }
+    .summary div { padding: 14px; }
+    .summary div + div { border-left: 1px solid var(--line); }
+    .summary span, .metadata dt { display: block; color: var(--muted); font-size: 10px; font-weight: 700; text-transform: uppercase; }
+    .summary strong { display: block; margin-top: 5px; font-size: 17px; }
+    .critical { color: var(--red); }
+    .normal, .online, .on { color: var(--green); }
+    .metadata { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin: 0; border: 1px solid var(--line); background: var(--line); }
+    .metadata div { min-height: 64px; padding: 12px; background: white; }
+    .metadata dd { margin: 5px 0 0; overflow-wrap: anywhere; }
+    table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    th, td { padding: 8px 9px; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { background: #edf3f6; font-size: 10px; text-transform: uppercase; }
+    td code { font-family: Consolas, monospace; }
+    .empty { padding: 18px; border: 1px solid var(--line); color: var(--muted); text-align: center; }
+    footer { margin-top: 28px; padding-top: 12px; border-top: 1px solid var(--line); color: var(--muted); font-size: 10px; }
+    @page { size: A4 landscape; margin: 12mm; }
+    @media print {
+      body { background: white; }
+      .toolbar { display: none; }
+      .sheet { width: auto; margin: 0; padding: 0; box-shadow: none; }
+      h2 { break-after: avoid; }
+      table { break-inside: auto; }
+      tr { break-inside: avoid; }
+    }
+    @media (max-width: 720px) {
+      .sheet { padding: 22px 18px; }
+      header, .summary { display: grid; grid-template-columns: 1fr; }
+      header div { text-align: left; }
+      .summary div + div { border-top: 1px solid var(--line); border-left: 0; }
+      .metadata { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <button type="button" onclick="window.print()">Imprimir / salvar em PDF</button>
+    <button type="button" onclick="window.close()">Fechar</button>
+  </div>
+
+  <main class="sheet">
+    <header>
+      <img src="{{ url_for('static', filename='logo-risco-zero.png') }}" alt="Risco Zero Subterrâneo">
+      <div>
+        <h1>Relatório operacional</h1>
+        <p>Gerado em {{ generated_at }}</p>
+      </div>
+    </header>
+
+    <h2>Resumo do sistema</h2>
+    <section class="summary">
+      <div><span>Nível estimado</span><strong>{{ state.level_percent }}%</strong></div>
+      <div><span>Estado</span><strong class="{{ 'critical' if state.status == 'CRITICO' else 'normal' }}">{{ state.status }}</strong></div>
+      <div><span>Bomba</span><strong class="{{ 'on' if state.pump_on else '' }}">{{ 'Ligada' if state.pump_on else 'Desligada' }}</strong></div>
+      <div><span>Arduino</span><strong class="{{ 'online' if state.serial_connected else '' }}">{{ 'Online' if state.serial_connected else 'Offline' }}</strong></div>
+    </section>
+
+    <h2>Identificação e comunicação</h2>
+    <dl class="metadata">
+      <div><dt>Responsável</dt><dd>{{ settings.responsible_name or 'Não cadastrado' }}</dd></div>
+      <div><dt>Telegram Chat ID</dt><dd>{{ settings.telegram_chat_id or 'Não cadastrado' }}</dd></div>
+      <div><dt>Localidade meteorológica</dt><dd>{{ settings.weather_city or 'Não cadastrada' }}</dd></div>
+      <div><dt>Porta serial</dt><dd>{{ state.serial_port }}</dd></div>
+      <div><dt>Último pacote</dt><dd><code>{{ state.last_serial_line or 'Sem pacote' }}</code> às {{ state.last_serial_at or '--:--:--' }}</dd></div>
+      <div><dt>Última atualização</dt><dd>{{ state.last_update or '--:--:--' }}</dd></div>
+      <div><dt>Sensor superior</dt><dd>{{ 'Acionado' if state.boia_superior else 'Desacionado' }}</dd></div>
+      <div><dt>Sensor inferior invertido</dt><dd>{{ 'Desacionado' if state.boia_inferior else 'Acionado' }}</dd></div>
+      <div><dt>Motivo da bomba</dt><dd>{{ state.pump_reason }}</dd></div>
+    </dl>
+
+    <h2>Histórico de leituras desta execução</h2>
+    {% if history %}
+      <table>
+        <thead><tr><th>Horário</th><th>Nível</th><th>Estado</th><th>Bomba</th><th>Manual físico</th><th>Manual web</th></tr></thead>
+        <tbody>
+          {% for item in history|reverse %}
+            <tr>
+              <td>{{ item.timestamp }}</td><td>{{ item.level_percent }}%</td><td>{{ item.status }}</td>
+              <td>{{ 'Ligada' if item.pump_on else 'Desligada' }}</td>
+              <td>{{ 'Ativo' if item.manual_fisico else 'Inativo' }}</td><td>{{ 'Ativo' if item.manual_web else 'Inativo' }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}<p class="empty">Nenhuma leitura registrada nesta execução.</p>{% endif %}
+
+    <h2>Eventos desta execução</h2>
+    {% if logs %}
+      <table>
+        <thead><tr><th>Horário</th><th>Categoria</th><th>Evento</th><th>Detalhes</th></tr></thead>
+        <tbody>
+          {% for item in logs %}
+            <tr><td>{{ item.timestamp }}</td><td>{{ item.category }}</td><td>{{ item.message }}</td><td>{{ item.details or '-' }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}<p class="empty">Nenhum evento registrado nesta execução.</p>{% endif %}
+
+    <footer>Risco Zero Subterrâneo · Relatório gerado pelo painel Flask. Os registros apresentados pertencem à execução atual do sistema.</footer>
+  </main>
+</body>
+</html>
