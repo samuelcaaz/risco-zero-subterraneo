@@ -46,7 +46,7 @@ Essa separação é intencional. Se o navegador, o Flask ou a internet ficarem i
 Boia inferior (nível seguro) ─┐
                               ├──> Arduino Uno ───> Relé ───> Bomba 5 V
 Boia superior (nível crítico) ─┘        │
-                                         │ USB Serial / 9600 baud
+                                        │ USB Serial / 9600 baud
                                          ▼
                               Flask + PySerial
                                  │          │
@@ -285,32 +285,6 @@ http://192.168.0.10:5000
 4. Feche o Monitor Serial e pare o Flask antes do upload, pois somente um programa pode usar a porta serial por vez.
 5. Clique em **Carregar**.
 6. Depois do upload, feche qualquer ferramenta que mantenha a porta aberta e inicie o painel Flask.
-
-## Segurança e publicação no GitHub
-
-O repositório já ignora os arquivos locais de credenciais da versão SCADA:
-
-```gitignore
-data/settings.json
-data/telegram_token.txt
-```
-
-Antes de publicar, confira se estes itens **não** serão enviados:
-
-- token do BotFather;
-- Chat ID pessoal ou de grupos;
-- arquivos `.env`;
-- pastas `.venv`;
-- capturas contendo dados privados;
-- arquivos de log com informações sensíveis.
-
-Verifique antes do primeiro commit:
-
-```powershell
-git status
-```
-
-Se um token tiver sido enviado ao GitHub por engano, revogue-o imediatamente no BotFather, gere outro token e remova o segredo do histórico do repositório.
 
 ## Limites do protótipo
 
